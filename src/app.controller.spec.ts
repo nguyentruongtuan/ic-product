@@ -1,6 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
+import { ProductService } from "./service/productService";
 
 describe("AppController", () => {
   let appController: AppController;
@@ -8,13 +9,13 @@ describe("AppController", () => {
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
-      providers: [AppService],
+      providers: [AppService, ProductService],
     }).compile();
 
     appController = app.get<AppController>(AppController);
   });
 
-  describe("root", () => {
-    it("should return list of products", () => {});
+  describe("getProducts", () => {
+    it("should return array of products", () => {});
   });
 });

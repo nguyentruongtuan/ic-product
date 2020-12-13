@@ -1,6 +1,6 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Product } from "src/entity/product.entity";
+import { Product } from "../entity/product.entity";
 import { GetProductRequest } from "src/model/getProductRequest";
 import { Repository } from "typeorm";
 import { BranchFilter } from "./productService/condition/branchFilter";
@@ -8,12 +8,14 @@ import { NameFilter } from "./productService/condition/nameFilter";
 import { PriceFilter } from "./productService/condition/priceFilter";
 import { SortByCondition } from "./productService/condition/sortBy";
 import { ConditionCollection } from "./productService/conditionCollection";
+import { ClientProxy } from "@nestjs/microservices";
 
 @Injectable()
 export class ProductService {
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
+    @Inject("LOGGER_SERVICE") private readonly loggerService: ClientProxy,
   ) {}
 
   getAll(): Promise<Product[]> {
@@ -30,7 +32,11 @@ export class ProductService {
     filterCollection.addCondition(new SortByCondition());
     filterCollection.apply(request, queryBuilder);
 
-    return queryBuilder.getMany();
+    const result = await queryBuilder.getMany();
+
+    await this.loggerService.send("GET_PRODUCT_SUCCESS", { result });
+
+    return result;
   }
 
   getById(id: number) {

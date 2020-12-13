@@ -9,6 +9,7 @@ async function bootstrap() {
       transport: Transport.RMQ,
       options: {
         urls: [`amqp://${process.env.RMQ_ENDPOINT}:${process.env.RMQ_PORT}`],
+        queue: "product_queue"
       },
     },
   );

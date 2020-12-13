@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { ConfigModule } from "@nestjs/config";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { ProductService } from "./service/productService";
@@ -7,6 +7,10 @@ import configuration from "./config/configuration";
 import { databaseProvider } from "./provider/database.provider";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { Product } from "./entity/product.entity";
+import {
+  ClientProxyFactory,
+  Transport,
+} from "@nestjs/microservices";
 
 @Module({
   imports: [
@@ -28,6 +32,23 @@ import { Product } from "./entity/product.entity";
   ],
   exports: [TypeOrmModule],
   controllers: [AppController],
-  providers: [AppService, ProductService],
+  providers: [
+    AppService,
+    ProductService,
+    {
+      provide: "LOGGER_SERVICE",
+      useFactory: () => {
+        return ClientProxyFactory.create({
+          transport: Transport.RMQ,
+          options: {
+            urls: [
+              `amqp://${process.env.RMQ_ENDPOINT}:${process.env.RMQ_PORT}`,
+            ],
+            queue: "logger_queue"
+          },
+        });
+      },
+    },
+  ],
 })
 export class AppModule {}

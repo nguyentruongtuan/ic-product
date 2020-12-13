@@ -3,8 +3,11 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Product } from "src/entity/product.entity";
 import { GetProductRequest } from "src/model/getProductRequest";
 import { Repository } from "typeorm";
-import { BranchFilter } from "./productFilter/filter/branchFilter";
-import { FilterCollection } from "./productFilter/filterCollection";
+import { BranchFilter } from "./productService/condition/branchFilter";
+import { NameFilter } from "./productService/condition/nameFilter";
+import { PriceFilter } from "./productService/condition/priceFilter";
+import { SortByCondition } from "./productService/condition/sortBy";
+import { ConditionCollection } from "./productService/conditionCollection";
 
 @Injectable()
 export class ProductService {
@@ -18,12 +21,16 @@ export class ProductService {
   }
 
   async getByFilter(request: GetProductRequest): Promise<Product[]> {
-    const filterCollection = new FilterCollection();
-    filterCollection.addFilter(new BranchFilter());
-    const conditions = filterCollection.apply(request, []);
-    return this.productRepository.find({
-      where: conditions,
-    });
+    const queryBuilder = this.productRepository.createQueryBuilder("product");
+
+    const filterCollection = new ConditionCollection();
+    filterCollection.addCondition(new BranchFilter());
+    filterCollection.addCondition(new NameFilter());
+    filterCollection.addCondition(new PriceFilter());
+    filterCollection.addCondition(new SortByCondition());
+    filterCollection.apply(request, queryBuilder);
+
+    return queryBuilder.getMany();
   }
 
   getById(id: number) {

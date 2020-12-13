@@ -1,11 +1,20 @@
-export class GetProductRequest {
-  constructor(public readonly branch: Array<string>) {
-    GetProductRequest.validate(this);
-  }
+import { IsArray, IsNumberString, IsOptional } from "class-validator";
 
-  static validate(request: GetProductRequest) {
-    if (!Array.isArray(request.branch)) {
-      throw new Error("Invalid branch");
-    }
-  }
+export class GetProductRequest {
+  @IsArray()
+  @IsOptional()
+  branch: Array<string>;
+
+  @IsOptional()
+  name: string;
+
+  @IsNumberString()
+  minPrice: number;
+
+  @IsNumberString()
+  maxPrice: number;
+
+  sortBy: string;
+
+  sortDirection: "ASC" | "DESC";
 }

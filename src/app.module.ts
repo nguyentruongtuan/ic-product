@@ -1,10 +1,8 @@
 import { Module } from "@nestjs/common";
-import { ConfigModule, ConfigService } from "@nestjs/config";
+import { ConfigModule } from "@nestjs/config";
 import { AppController } from "./app.controller";
-import { AppService } from "./app.service";
 import { ProductService } from "./service/productService";
 import configuration from "./config/configuration";
-import { databaseProvider } from "./provider/database.provider";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { Product } from "./entity/product.entity";
 import {
@@ -33,7 +31,6 @@ import {
   exports: [TypeOrmModule],
   controllers: [AppController],
   providers: [
-    AppService,
     ProductService,
     {
       provide: "LOGGER_SERVICE",
